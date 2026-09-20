@@ -1,0 +1,36 @@
+{
+  "name": "pickside",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --configLoader runner",
+    "test:e2e": "playwright test",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "test:server": "node scripts/check-server.mjs"
+  },
+  "dependencies": {
+    "next": "^16.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^4.1.0",
+    "postgres": "^3.4.7",
+    "@electric-sql/pglite": "^0.3.14",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.13",
+    "@tailwindcss/postcss": "^4.1.13",
+    "vitest": "^3.2.4",
+    "@playwright/test": "^1.55.0",
+    "tsx": "^4.20.5"
+  },
+  "type": "module"
+}

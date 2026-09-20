@@ -1,0 +1,11 @@
+{
+  "sourceSyntaxFilesPassed": 32,
+  "localImportsResolved": 36,
+  "originRuntimeChecksPassed": 5,
+  "fullTypecheck": "PASS",
+  "nextBuild": "PASS",
+  "vitest": "PASS: 25 tests",
+  "playwright": "BLOCKED: Chromium spawn EPERM; approval request rejected",
+  "serverIntegration": "PASS: 21 checks against production server",
+  "persistence": "PASS: votes survived restart"
+}

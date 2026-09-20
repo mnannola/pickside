@@ -1,0 +1,6 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import './globals.css';
+import { appOrigin } from '@/lib/config';
+export const metadata: Metadata = { metadataBase: new URL(appOrigin()), title: { default: 'Pickside — Two choices. One you.', template: '%s | Pickside' }, description: 'Settle the debate. Create a matchup, share it with friends, and pick a side.' };
+export default function RootLayout({ children }: { children: React.ReactNode }) { return <html lang="en"><body><a className="skip-link" href="#main">Skip to content</a><header className="site-header"><Link href="/" className="brand" aria-label="Pickside home"><span className="brand-symbol" aria-hidden="true"><i/><i/></span>pickside<span className="brand-period">.</span></Link><Link href="/create" className="header-create">Create a matchup <span aria-hidden="true">＋</span></Link></header><main id="main">{children}</main><footer className="site-footer"><span>Small choices. Big opinions.</span><span>Made for a little friendly disagreement. <span className="footer-star" aria-hidden="true">✳</span></span></footer></body></html>; }
