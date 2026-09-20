@@ -167,3 +167,53 @@ input::placeholder { color:#83899a; }
  .empty-page h1 { font-size:45px; letter-spacing:-2px; } .back-link { margin-bottom:25px; }
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
+
+/* Fit the decision into the small viewport (browser controls visible).
+   Intrinsic minimums let long or enlarged text grow without clipping. */
+@media (max-width:600px), (max-width:950px) and (max-height:500px) and (orientation:landscape) {
+ body:has(.matchup-stage) { --matchup-header-height:4.25rem; }
+ body:has(.matchup-stage) .site-header {
+  flex-wrap:wrap; gap:.5rem;
+  min-height:calc(var(--matchup-header-height) + env(safe-area-inset-top));
+  padding:calc(.5rem + env(safe-area-inset-top)) 1rem .5rem;
+ }
+ body:has(.matchup-stage) .brand { font-size:1.5rem; }
+ body:has(.matchup-stage) .header-create { min-height:44px; font-size:.6875rem; padding:.5rem .75rem; gap:.5rem; }
+ .matchup-page { margin:0 max(1rem, env(safe-area-inset-right)) 0 max(1rem, env(safe-area-inset-left)); padding-top:.5rem; }
+ .matchup-stage {
+  display:grid;
+  grid-template-rows:auto minmax(min-content,1fr) auto;
+  min-height:calc(100vh - var(--matchup-header-height) - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  min-height:calc(100svh - var(--matchup-header-height) - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+ }
+ .matchup-stage .page-heading { margin-bottom:.75rem; }
+ .matchup-stage .page-heading .eyebrow { font-size:.5625rem; letter-spacing:.09em; line-height:1.3; overflow-wrap:anywhere; }
+ .matchup-stage .page-heading h1 { font-size:1.875rem; line-height:1.1; letter-spacing:-.06em; margin:.25rem 0; }
+ .matchup-stage .page-heading p { font-size:.75rem; line-height:1.4; }
+ .matchup-stage .desktop-lead { display:none; }
+ .matchup-stage .matchup-grid { grid-template-columns:minmax(0,1fr); grid-template-rows:repeat(2,minmax(min-content,1fr)); gap:.75rem; }
+ .matchup-stage .choice-card { min-height:0; padding:.75rem 1rem; border-radius:1.25rem; }
+ .matchup-stage .card-top { flex-shrink:0; gap:.5rem; flex-wrap:wrap; }
+ .matchup-stage .choice-letter { width:1.5rem; height:1.5rem; font-size:.625rem; border-radius:.4375rem; }
+ .matchup-stage .card-category { font-size:.5625rem; letter-spacing:.06em; min-width:0; flex:1; }
+ .matchup-stage .card-kicker { display:none; }
+ .matchup-stage .card-content { flex:1 0 auto; padding:.5rem 0; justify-content:center; }
+ .matchup-stage .choice-title { font-size:1.875rem; line-height:1.08; letter-spacing:-.04em; }
+ .matchup-stage .choice-subtitle { font-size:.75rem; line-height:1.35; margin-top:.25rem; }
+ .matchup-stage .card-bottom { flex-shrink:0; padding-top:.375rem; font-size:.6875rem; }
+ .matchup-stage .card-arrow { width:1.375rem; height:1.375rem; font-size:1rem; }
+ .matchup-stage .vs { width:2.5rem; height:2.5rem; font-size:.875rem; border-width:4px; }
+ .matchup-stage .your-pick { font-size:.5625rem; padding:.25rem .375rem; }
+ .matchup-stage .result-number { font-size:1.875rem; padding-bottom:.5rem; letter-spacing:-.04em; }
+ .matchup-stage .result-number small { font-size:1rem; }
+ .matchup-stage .vote-count { font-size:.6875rem; padding-bottom:.5rem; }
+ .matchup-stage .vote-note { min-height:0; font-size:.6875rem; line-height:1.4; padding:.5rem 0 0; }
+ .matchup-page .success-banner { margin:1rem 0; }
+}
+@media (max-width:950px) and (max-height:500px) and (orientation:landscape) {
+ .matchup-stage .matchup-grid { grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:minmax(min-content,1fr); }
+ .matchup-stage .page-heading .eyebrow { display:none; }
+ .matchup-stage .page-heading { margin-bottom:.5rem; }
+ .matchup-stage .page-heading h1 { font-size:1.5rem; }
+ .matchup-stage .choice-title { font-size:1.625rem; }
+}
