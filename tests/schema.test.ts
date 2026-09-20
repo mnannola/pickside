@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { matchupSchema, voteSchema, percentages, variant } from '../src/lib/schema';
+import { matchupSchema, voteSchema, percentages, variant, choiceVariant } from '../src/lib/schema';
 describe('matchup validation', () => {
   const valid = { a: { title: 'Gladiator' }, b: { title: 'Braveheart' } };
   it('trims text and supplies optional fields', () => { expect(matchupSchema.parse({ ...valid, a: { title: '  Gladiator  ' } })).toEqual({ a: { title: 'Gladiator', subtitle: '' }, b: { title: 'Braveheart', subtitle: '' }, category: '' }); });
@@ -11,4 +11,21 @@ describe('matchup validation', () => {
 describe('results', () => {
   it.each([[0,0,0,0], [1,0,100,0], [0,1,0,100], [1,1,50,50], [1,2,33,67], [2,1,67,33]])('formats %i:%i without rounding gaps', (a,b,pa,pb) => { expect(percentages(a,b)).toEqual([pa,pb]); });
   it('keeps visual variants stable and in range for Unicode', () => { for (const text of ['Gladiator', 'Braveheart', '🌮', '日本語', '']) { expect(variant(text)).toBe(variant(text)); expect(variant(text)).toBeGreaterThanOrEqual(0); expect(variant(text)).toBeLessThan(4); } });
+});
+
+describe('choice card colors', () => {
+  const titles = ['', ' ', 'Gladiator', 'Braveheart', 'A', 'B', 'C', 'D', '🌮', '日本語'];
+  it('keeps every pair of contenders visually distinct, including empty previews', () => {
+    for (const a of titles) for (const b of titles) {
+      expect(choiceVariant(a, 'A')).not.toBe(choiceVariant(b, 'B'));
+    }
+  });
+  it('keeps preview colors stable after validation trims titles', () => {
+    for (const side of ['A', 'B'] as const) for (const title of titles) {
+      const color = choiceVariant(title, side);
+      expect(color).toBe(choiceVariant(title.trim(), side));
+      expect(color).toBeGreaterThanOrEqual(0);
+      expect(color).toBeLessThan(4);
+    }
+  });
 });

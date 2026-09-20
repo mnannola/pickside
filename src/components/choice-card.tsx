@@ -1,8 +1,8 @@
 import type { Choice } from '@/lib/schema';
-import { variant } from '@/lib/schema';
+import { choiceVariant } from '@/lib/schema';
 type Props = { choice: Choice; side: 'A' | 'B'; category?: string; percentage?: number; votes?: number; selected?: boolean; onChoose?: () => void; disabled?: boolean; compact?: boolean };
 export function ChoiceCard({ choice, side, category, percentage, votes, selected, onChoose, disabled, compact }: Props) {
-  const style = variant(choice.title || side);
+  const style = choiceVariant(choice.title, side);
   const content = <><span className="card-top"><span className="choice-letter">{side}</span><span className="card-category">{category || 'YOUR CALL'}</span>{selected && <span className="your-pick">✓ Your pick</span>}</span><span className="card-art" aria-hidden="true"><span className="orb orb-one"/><span className="orb orb-two"/><span className="art-line"/></span><span className="card-content"><span className="card-kicker">THE {side === 'A' ? 'FIRST' : 'OTHER'} CONTENDER</span><span className="choice-title">{choice.title || (side === 'A' ? 'This one' : 'That one')}</span>{choice.subtitle && <span className="choice-subtitle">{choice.subtitle}</span>}</span><span className="card-bottom">{percentage !== undefined ? <><span className="result-number">{percentage}<small>%</small></span><span className="vote-count">{votes} {votes === 1 ? 'vote' : 'votes'}</span><span className="result-track" aria-hidden="true"><span style={{ width: percentage + '%' }}/></span></> : <><span>{onChoose ? 'Pick this side' : 'A worthy contender'}</span><span className="card-arrow" aria-hidden="true">↗</span></>}</span></>;
   const className = 'choice-card variant-' + style + (compact ? ' compact' : '') + (selected ? ' selected' : '');
   return onChoose ? <button type="button" className={className} onClick={onChoose} disabled={disabled} aria-label={'Vote for ' + choice.title}>{content}</button> : <article className={className} aria-label={choice.title + (percentage !== undefined ? ': ' + percentage + '%, ' + votes + ' votes' : '')}>{content}</article>;
