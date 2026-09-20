@@ -23,7 +23,7 @@ button:disabled { cursor:wait; }
 .brand-symbol i { width:10px; height:25px; display:block; border-radius:3px; background:var(--brand); }
 .brand-symbol i:last-child { opacity:.55; }
 .header-create { display:flex; gap:25px; align-items:center; font-size:13px; font-weight:700; padding:11px 17px; background:white; border:1px solid var(--line); border-radius:99px; }
-.header-create span { font-size:21px; color:var(--brand-dark); }
+.header-create-arrow { font-size:21px; color:var(--brand-dark); }
 .page-shell { max-width:1160px; margin:auto; padding:30px 0 64px; }
 .eyebrow { font-size:10px; font-weight:800; letter-spacing:2.1px; display:inline-flex; align-items:center; gap:9px; color:#575d78; text-transform:uppercase; }
 .live-dot { width:6px; height:6px; background:var(--brand); border-radius:50%; display:inline-block; box-shadow:0 0 0 4px #ececfe; }
@@ -276,6 +276,13 @@ input::placeholder { color:#83899a; }
 @media(max-width:360px) {
  .site-header .brand { font-size:24px; }
  .header-create { gap:4px; padding:7px 8px; }
- .header-create span { display:none; }
+ .header-create-arrow { display:none; }
  body:has(.matchup-stage) .header-create { padding:.5rem; }
+}
+
+/* Keep phone navigation on one row so it fits the matchup viewport budget. */
+.header-create-short { display:none; }
+@media(max-width:600px) {
+ .header-create-full { display:none; }
+ .header-create-short { display:inline; }
 }
