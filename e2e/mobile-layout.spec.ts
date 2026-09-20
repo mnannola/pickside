@@ -4,6 +4,8 @@ const origin = 'http://localhost:3100';
 async function expectPairFits(page: Page, sideBySide: boolean) {
   const cards = page.locator('.matchup-stage .choice-card');
   await expect(cards).toHaveCount(2);
+  await expect(cards.nth(0)).toBeVisible();
+  await expect(cards.nth(1)).toBeVisible();
   const bounds = await cards.evaluateAll(elements => elements.map(element => {
     const { top, bottom, left, right, height } = element.getBoundingClientRect();
     return { top, bottom, left, right, height };
@@ -58,11 +60,17 @@ test('long and enlarged text grows without clipping or overlapping sharing contr
   const { slug } = await created.json();
   for (const suffix of ['', '/results']) {
     await page.goto('/m/' + slug + suffix);
-    await expect(page.locator('.matchup-stage .choice-card')).toHaveCount(2);
+    const cards = page.locator('.matchup-stage .choice-card');
+    await expect(cards).toHaveCount(2);
+    // Streamed content may exist in the DOM before Next reveals it.
+    await expect(cards.nth(0)).toBeVisible();
+    await expect(cards.nth(1)).toBeVisible();
+    await expect(page.locator('.share-box')).toBeVisible();
     await page.addStyleTag({ content: 'html { font-size: 200%; }' });
     const measurement = await page.evaluate(() => {
       const cards = Array.from(document.querySelectorAll('.matchup-stage .choice-card'));
       return {
+        cardsHaveHeight: cards.every(card => card.getBoundingClientRect().height >= 44),
         cardsFitContent: cards.every(card => card.scrollHeight <= card.clientHeight + 1),
         stageBottom: document.querySelector('.matchup-stage')!.getBoundingClientRect().bottom,
         pairBottom: cards[1].getBoundingClientRect().bottom,
@@ -70,6 +78,7 @@ test('long and enlarged text grows without clipping or overlapping sharing contr
         width: document.documentElement.scrollWidth,
       };
     });
+    expect(measurement.cardsHaveHeight).toBe(true);
     expect(measurement.cardsFitContent).toBe(true);
     expect(measurement.stageBottom).toBeGreaterThanOrEqual(measurement.pairBottom);
     expect(measurement.shareTop).toBeGreaterThan(measurement.pairBottom);
