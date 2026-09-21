@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 const origin = 'http://localhost:3100';
 test('create → share → first vote → revisit → independent vote', async ({ page, browser }, testInfo) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+  await page.addInitScript(() => { Object.defineProperty(navigator, 'share', { configurable: true, value: undefined }); });
   await page.goto('/create');
   await page.locator('#title-A').fill('Gladiator'); await page.locator('#subtitle-A').fill('Are you not entertained?');
   await page.locator('#title-B').fill('Braveheart'); await page.locator('#subtitle-B').fill('Freedom!');
@@ -13,7 +14,7 @@ test('create → share → first vote → revisit → independent vote', async (
   await expect(page.getByText('Your matchup is ready.', { exact: false })).toBeVisible();
   await expect(page.getByText('A clean slate.', { exact: false })).toBeVisible();
   await page.evaluate(() => { Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (value: string) => { (window as unknown as { copied: string }).copied = value; } } }); });
-  await page.getByRole('button', { name: 'Copy link' }).click();
+  await page.getByRole('button', { name: 'Share matchup' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Link copied!' })).toBeVisible();
   expect(await page.evaluate(() => (window as unknown as { copied: string }).copied)).toBe(matchupUrl);
   const voter = await browser.newContext({ viewport: testInfo.project.use.viewport });
