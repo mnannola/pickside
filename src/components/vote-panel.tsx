@@ -1,4 +1,5 @@
 'use client';
+import { track } from '@/lib/track';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { Matchup } from '@/lib/schema';
@@ -7,7 +8,7 @@ let identityRequest: Promise<Response> | undefined;
 function ensureIdentity() { return identityRequest ??= fetch('/api/identity', { method: 'POST' }).finally(() => { identityRequest = undefined; }); }
 export function VotePanel({ matchup }: { matchup: Matchup }) {
   const router = useRouter(); const [ready, setReady] = useState(false); const [pending, setPending] = useState(false); const [error, setError] = useState('');
-  async function prepare() { setError(''); try { const result = await ensureIdentity(); if (!result.ok) throw new Error('Couldn’t prepare your vote. Please try again.'); setReady(true); } catch { setError('Couldn’t connect. Please try again.'); } }
+  async function prepare() { setError(''); try { const result = await ensureIdentity(); if (!result.ok) throw new Error('Couldn’t prepare your vote. Please try again.'); setReady(true); void track('matchup_open', matchup.slug); } catch { setError('Couldn’t connect. Please try again.'); } }
   useEffect(() => { void prepare(); }, []);
   async function vote(choice: 'A' | 'B') {
     if (pending || !ready) return; setPending(true); setError('');
