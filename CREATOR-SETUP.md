@@ -16,7 +16,7 @@ Add these variables for Preview and Production:
 
 Keep DATABASE_URL, LOCAL_DATABASE=0, and VOTER_SECRET configured for each deployed environment. Keep production APP_URL=https://pickside-rouge.vercel.app.
 
-For previews, the app uses Vercel's system VERCEL_URL when VERCEL_ENV=preview. Open the deployment-specific URL for testing. Ensure Vercel exposes system environment variables. If using a preview alias instead, open the deployment URL so mutation origins match.
+For previews, the app uses Vercel's system VERCEL_BRANCH_URL when VERCEL_ENV=preview, falling back to VERCEL_URL if no branch URL is available. Open the stable branch URL for sign-in and testing so cookies and mutation origins match. Ensure Vercel exposes system environment variables.
 
 Public settings provided in this task are saved in the ignored local .env.local. They are not automatically copied to Vercel. Redeploy after changing environment variables.
 
@@ -26,9 +26,9 @@ Enable email sign-in and allow new users to sign up. Under Authentication > URL 
 - Site URL: https://pickside-rouge.vercel.app
 - Redirect URLs: https://pickside-rouge.vercel.app/auth/callback**
 - For local testing: http://localhost:3000/auth/callback**
-- For a preview: https://YOUR-EXACT-DEPLOYMENT.vercel.app/auth/callback**
+- For a preview: https://YOUR-EXACT-BRANCH.vercel.app/auth/callback**
 
-The trailing ** allows the app's next query parameter. Use your exact deployment hostname, not a wildcard granting all Vercel projects access.
+The trailing ** allows the app's next query parameter. Use your exact branch hostname, not a wildcard granting all Vercel projects access.
 
 Keep the standard magic-link email template using ConfirmationURL. The app exchanges the resulting authorization code. Open emailed links in the same browser that requested them.
 
@@ -64,3 +64,9 @@ Automated ownership tests use a local PostgreSQL engine and mocked verified iden
 ## 6. Release
 
 After preview acceptance and green GitHub checks, merge into main to trigger the existing production deployment. Repeat the sign-in/create/vote/close smoke test on production. This task does not change live Supabase settings or merge into main.
+
+For the creator branch, add this exact Supabase redirect entry:
+
+`https://pickside-git-feature-creator-accounts-mnannolas-projects.vercel.app/auth/callback**`
+
+Request a fresh email after saving URL settings. If a new link still goes to localhost, check that the Supabase Site URL is the production URL and that the Magic Link and Confirm Signup email templates use `{{ .ConfirmationURL }}` for the sign-in link, not SiteURL or a hardcoded localhost address.
