@@ -1,5 +1,6 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { migrationFiles } from './migrations';
 type Database = { query<T extends Record<string, unknown>>(sql: string, params?: unknown[]): Promise<{ rows: T[] }> };
 const globalDb = globalThis as unknown as { picksideDb?: Promise<Database> };
 export async function database(): Promise<Database> {
@@ -17,6 +18,6 @@ async function connect(): Promise<Database> {
   const dataDir = path.resolve(/* turbopackIgnore: true */ process.env.LOCAL_DATABASE_PATH || '.data/pickside');
   await mkdir(dataDir, { recursive: true });
   const db = new PGlite(dataDir);
-  await db.exec(await readFile(path.resolve('supabase/migrations/202609190001_initial.sql'), 'utf8'));
+  for (const file of migrationFiles) await db.exec(await readFile(path.resolve(file), 'utf8'));
   return db;
 }

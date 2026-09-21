@@ -14,7 +14,7 @@ Local mode uses PGlite, an embedded PostgreSQL engine with durable files in `.da
 1. Create a Supabase project and obtain its server-side PostgreSQL pooler connection URL.
 2. Set `DATABASE_URL` to that URL. Do not prefix it with NEXT_PUBLIC. Supabase database credentials belong only on the server.
 3. Set `LOCAL_DATABASE=0`.
-4. Apply `supabase/migrations/202609190001_initial.sql` in the Supabase SQL editor, or export DATABASE_URL and run `npm run db:migrate`.
+4. Apply both SQL files in `supabase/migrations/` in filename order in the Supabase SQL editor, or export DATABASE_URL and run `npm run db:migrate`.
 5. Set `APP_URL` to the exact public HTTPS origin, and `VOTER_SECRET` to a random secret of at least 32 characters (for example: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`).
 6. Run `npm run build`, then `npm start`, or deploy to a Next.js-compatible host such as Vercel with those environment values.
 
@@ -39,11 +39,15 @@ Playwright starts its own local server on port 3100 and uses `.data/e2e`. It can
 - Results are calculated from stored votes. An empty matchup displays 0%/0%; non-empty rounded percentages always sum to 100%. Refresh to see later votes.
 - Public results can be viewed without voting. Links are intentionally public; slugs are not authorization.
 - Clearing cookies or switching browsers creates a new anonymous identity. This is one vote per identity, not verified one vote per human.
-- No accounts, groups, image/catalog APIs, editing, vote changes, or real-time subscriptions.
+- Optional creator accounts use Supabase email-link sign-in. My Matchups lists owned matchups with results, sharing, and permanent closing of voting.
+- No groups, image/catalog APIs, editing interface, vote changes, or real-time subscriptions.
 - Creation is public. Internet deployment should add platform-level abuse/rate controls before broad promotion.
 
 ## Design
 Shared tokens live in `src/app/globals.css`. Canonical `ChoiceCard` is used in creation previews, voting, and results. Four deterministic palettes and geometric CSS artwork make text-only matchups complete. Cards use native buttons for voting, visible focus states, wrapping text, 48px primary controls, reduced-motion support, and a mobile stacked layout. Open Graph and Twitter metadata are generated from each matchup; no external image service is used.
 
+## Creator accounts setup
+See [CREATOR-SETUP.md](CREATOR-SETUP.md) for the database migration, Supabase Auth, Vercel preview, and release checklist.
+
 ## Verification status in this workspace
-TypeScript, production build, all 25 Vitest tests, 21 production-server integration checks, and database persistence across a restart passed. Browser tests were attempted but the task permission policy blocks Chromium startup (spawn EPERM). Visual and browser-interaction checks remain unverified. See `STATUS.md` for details.
+The production build, TypeScript, and all 43 Vitest tests pass. All 20 Playwright cases were attempted but blocked at Chromium launch by Windows permissions (spawn EPERM). Live email sign-in and browser layout checks remain pending. See [STATUS.md](STATUS.md).
