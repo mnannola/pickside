@@ -284,3 +284,11 @@ input::placeholder { color:#83899a; }
 
 .pair-category { font-size:.75rem; font-weight:700; color:var(--muted); margin-bottom:12px; overflow-wrap:anywhere; }
 .vote-count { color:var(--muted); font-weight:400; }
+
+.account-tabs { display:flex; gap:24px; margin-bottom:24px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+.account-tabs a { padding:14px 0; font-weight:700; font-size:14px; }
+.account-tabs [aria-current] { color:var(--brand-dark); border-bottom:3px solid var(--brand); }
+.activity-pick { color:var(--brand-dark); font-weight:700; overflow-wrap:anywhere; }
+.activity-results { margin:20px 0; display:grid; gap:12px; }
+.activity-results p { display:flex; justify-content:space-between; gap:16px; overflow-wrap:anywhere; font-size:14px; }
+.activity-results strong { flex-shrink:0; }

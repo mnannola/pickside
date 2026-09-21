@@ -4,7 +4,7 @@ import { beforeAll, beforeEach, afterAll, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({ database: vi.fn(), creator: vi.fn() }));
 vi.mock('../src/lib/database', () => ({ database: mocks.database }));
 vi.mock('../src/lib/supabase/server', () => ({ currentCreator: mocks.creator }));
-import { createMatchup, getMatchup, listOwnedMatchups, closeMatchup, castVote, MatchupClosedError } from '../src/lib/repository';
+import { createMatchup, getMatchup, listOwnedMatchups, closeMatchup, castVote, listActivity, existingVote, MatchupClosedError } from '../src/lib/repository';
 import { POST as createRoute } from '../src/app/api/matchups/route';
 import { POST as closeRoute } from '../src/app/api/matchups/[slug]/close/route';
 import { authDestination } from '../src/lib/supabase/config';
@@ -24,6 +24,7 @@ beforeAll(async () => {
   await db.query('INSERT INTO matchups (slug,a_title,b_title) VALUES ($1,$2,$3)', ['Legacy0001', 'Old A', 'Old B']);
   await db.exec(await readFile(migrationFiles[1], 'utf8'));
   await db.exec(await readFile(migrationFiles[1], 'utf8'));
+  await db.exec(await readFile(migrationFiles[2], 'utf8'));
   mocks.database.mockResolvedValue(db);
 });
 beforeEach(() => { mocks.creator.mockReset(); mocks.creator.mockResolvedValue(null); });
@@ -103,4 +104,37 @@ it('has a consistent final state when a vote races with closing', async () => {
 it('only allows known local destinations after sign-in', () => {
   for (const next of ['https://evil.example', '//evil.example', '/auth/signout', '/\\evil.example', null, undefined]) expect(authDestination(next)).toBe('/my-matchups');
   expect(authDestination('/create')).toBe('/create');
+  expect(authDestination('/activity')).toBe('/activity');
+});
+
+it('saves only signed-in picks to the correct private activity list', async () => {
+  const slug = await createMatchup(input);
+  await castVote(slug, '1'.repeat(64), 'B', alice);
+  await castVote(slug, '2'.repeat(64), 'A', bob);
+  await castVote(slug, '3'.repeat(64), 'A');
+  expect((await listActivity(alice)).find(m => m.slug === slug)).toMatchObject({ picked:'B', a_votes:2, b_votes:1 });
+  expect((await listActivity(bob)).find(m => m.slug === slug)).toMatchObject({ picked:'A' });
+  expect(await getMatchup(slug)).not.toHaveProperty('user_id');
+});
+it('keeps an account vote unchanged across browsers and concurrent retries', async () => {
+  const slug = await createMatchup(input);
+  await Promise.all([castVote(slug, '4'.repeat(64), 'A', alice), castVote(slug, '5'.repeat(64), 'B', alice)]);
+  const m = await getMatchup(slug);
+  expect(m!.a_votes + m!.b_votes).toBe(1);
+  const pick = await existingVote(slug, '', alice);
+  expect(await castVote(slug, '6'.repeat(64), pick === 'A' ? 'B' : 'A', alice)).toBe(pick);
+  expect((await listActivity(alice)).filter(m => m.slug === slug)).toHaveLength(1);
+});
+it('does not attach earlier anonymous votes when signing in', async () => {
+  const slug = await createMatchup(input);
+  await castVote(slug, '7'.repeat(64), 'A');
+  expect(await castVote(slug, '7'.repeat(64), 'B', alice)).toBe('A');
+  expect((await listActivity(alice)).some(m => m.slug === slug)).toBe(false);
+});
+it('retains activity after voting closes', async () => {
+  const slug = await createMatchup(input, alice);
+  await castVote(slug, '8'.repeat(64), 'B', bob);
+  await closeMatchup(slug, alice);
+  expect((await listActivity(bob)).find(m => m.slug === slug)?.closed_at).toBeTruthy();
+  expect(await existingVote(slug, '', bob)).toBe('B');
 });

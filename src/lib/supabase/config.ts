@@ -9,5 +9,5 @@ export function authConfig() {
   };
 }
 export function authDestination(value: string | null | undefined) {
-  return value === '/create' ? '/create' : '/my-matchups';
+  return (value === '/create' || value === '/activity') ? value : '/my-matchups';
 }
