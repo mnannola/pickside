@@ -32,23 +32,29 @@ export async function closeMatchup(slug: string, ownerId: string) {
   const { rows } = await db.query('UPDATE matchups SET closed_at=coalesce(closed_at, now()) WHERE slug=$1 AND owner_id=$2 RETURNING slug', [slug, ownerId]);
   return rows.length > 0;
 }
-export async function existingVote(slug: string, hash: string) {
+export async function existingVote(slug: string, hash: string, userId: string | null = null) {
   const db = await database();
-  const { rows } = await db.query('SELECT choice FROM votes WHERE matchup_slug=$1 AND voter_hash=$2', [slug, hash]);
+  const { rows } = await db.query('SELECT choice FROM votes WHERE matchup_slug=$1 AND (voter_hash=$2 OR user_id=$3) ORDER BY (user_id=$3) DESC NULLS LAST LIMIT 1', [slug, hash, userId]);
   return rows[0]?.choice as 'A' | 'B' | undefined;
 }
 export class MatchupClosedError extends Error {
   constructor() { super('Voting has closed for this matchup.'); this.name = 'MatchupClosedError'; }
 }
-export async function castVote(slug: string, hash: string, choice: 'A' | 'B') {
+export async function castVote(slug: string, hash: string, choice: 'A' | 'B', userId: string | null = null) {
   const db = await database();
-  const prior = await existingVote(slug, hash);
+  const prior = await existingVote(slug, hash, userId);
   if (prior) return prior;
   try {
-    await db.query('INSERT INTO votes (matchup_slug,voter_hash,choice) VALUES ($1,$2,$3) ON CONFLICT (matchup_slug,voter_hash) DO NOTHING', [slug, hash, choice]);
+    await db.query('INSERT INTO votes (matchup_slug,voter_hash,choice,user_id) VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING', [slug, hash, choice, userId]);
   } catch (error) {
     if (error instanceof Error && error.message.includes('matchup_closed')) throw new MatchupClosedError();
     throw error;
   }
-  return existingVote(slug, hash);
+  return existingVote(slug, hash, userId);
+}
+
+export async function listActivity(userId: string, page = 1) {
+  const db = await database();
+  const { rows } = await db.query(selectMatchup.replace('SELECT m.*,', 'SELECT m.*, v.choice AS picked, v.created_at AS voted_at,') + ' JOIN votes v ON v.matchup_slug=m.slug WHERE v.user_id=$1 ORDER BY v.created_at DESC, m.slug DESC LIMIT 21 OFFSET $2', [userId, (page - 1) * 20]);
+  return rows.map(row => ({ ...record(row), picked: row.picked as 'A' | 'B', voted_at: String(row.voted_at) }));
 }

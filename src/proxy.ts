@@ -22,4 +22,4 @@ export async function proxy(request: NextRequest) {
   response.headers.set('Cache-Control', 'private, no-store');
   return response;
 }
-export const config = { matcher: ['/create', '/my-matchups', '/signin', '/api/matchups', '/api/matchups/:slug/close', '/auth/signout'] };
+export const config = { matcher: ['/activity', '/m/:slug', '/m/:slug/results', '/api/matchups/:slug/vote', '/create', '/my-matchups', '/signin', '/api/matchups', '/api/matchups/:slug/close', '/auth/signout'] };
